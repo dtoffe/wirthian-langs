@@ -1,0 +1,397 @@
+(* 
+ * Pascal ISO 7185 EBNF grammar
+ *
+ *)
+
+(*
+ *  TERMINAL SYMBOLS
+ *)
+
+(*
+ *  Section 6.1 : Lexical Tokens
+ *)
+
+letter = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" |
+         "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" .
+
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" .
+
+special-symbol = "+" | "-" | "*" | "/" | "=" | "<" | ">" | "[" | "]" | "." | "," | ":" |
+                 ";" | "^" | "(" | ")" | "<>" | "<=" | ">=" | ":=" | ".." | word-symbol .
+
+word-symbol = "and" | "array" | "begin" | "case" | "const" | "div" | "do" | "downto" | "else" |
+              "end" | "file" | "for" | "function" | "goto" | "if" | "in" | "label" | "mod" |
+              "nil" | "not" | "of" | "or" | "packed" | "procedure" | "program" | "record" |
+              "repeat" | "set" | "then" | "to" | "type" | "until" | "var" | "while" | "with" .
+
+identifier = letter { letter | digit } .
+
+directive = letter { letter | digit } . (* forward, external *)
+
+signed-number = signed-integer | signed-real .
+
+signed-real = [ sign ] unsigned-real .
+
+signed-integer = [ sign ] unsigned-integer .
+
+unsigned-number = unsigned-integer | unsigned-real .
+
+sign = "+" | "-" .
+
+unsigned-real = digit-sequence "." fractional-part [ "e" scale-factor ] digit-sequence "e" scale-factor .
+
+unsigned-integer = digit-sequence .
+
+fractional-part = digit-sequence .
+
+scale-factor = [ sign ] digit-sequence .
+
+digit-sequence = digit { digit } .
+
+label = digit-sequence .
+
+character-string = "'" string-element { string-element } "'" .
+
+string-element = apostrophe-image | string-character .
+
+apostrophe-image = "'" .
+
+string-character = one-of-a-set-of-implementation-defined-characters .
+
+(*
+ *  NON-TERMINAL SYMBOLS
+ *)
+
+(*
+ *  Section 6.2 : Blocks, scopes, and activations
+ *)
+
+block = label-declaration-part constant-definition-part type-definition-part
+        variable-declaration-part procedure-and-function-declaration-part
+        statement-part .
+
+label-declaration-part = [ "label" label { "," label } ";"" ] .
+
+constant-definition-part = [ "const" constant-definition ";" { constant-definition ";" } ] .
+
+type-definition-part = [ "type" type-definition ";" { type-definition ";" } ] .
+
+variable-declaration-part = [ "var" variable-declaration ";" { variable-declaration ";" } ] .
+
+procedure-and-function-declaration-part = { ( procedure-declaration | function-declaration ) ";" } .
+
+statement-part = compound-statement .
+
+(*
+ *  Section 6.3 : Constant Definitions
+ *)
+
+constant-definition = identifier "=" constant .
+
+constant = [ sign ] ( unsigned-number | constant-identifier ) | character-string .
+
+constant-identifier = identifier .
+
+(*
+ *  Section 6.4 : Type Definitions
+ *)
+
+type-definition = identifier "=" type-denoter .
+
+type-denoter = type-identifier | new-type .
+
+new-type = new-ordinal-type | new-structured-type | new-pointer-type .
+
+simple-type-identifier = type-identifier .
+
+structured-type-identifier = type-identifier .
+
+pointer-type-identifier = type-identifier .
+
+type-identifier = identifier .
+
+simple-type = ordinal-type | real-type-identifier .
+
+ordinal-type = new-ordinal-type | ordinal-type-identifier .
+
+new-ordinal-type = enumerated-type | subrange-type .
+
+ordinal-type-identifier = type-identifier .
+
+real-type-identifier = type-identifier .
+
+enumerated-type = "(" identifier-list ")" .
+
+identifier-list = identifier { "," identifier } .
+
+subrange-type = constant ".." constant .
+
+structured-type = new-structured-type | structured-type-identifier .
+
+new-structured-type = [ "packed" ] unpacked-structured-type .
+
+unpacked-structured-type = array-type | record-type | set-type | file-type .
+
+array-type = "array" "[" index-type { "," index-type } "]" "of" component-type .
+
+index-type = ordinal-type .
+
+component-type = type-denoter .
+
+record-type = "record" field-list "end" .
+
+field-list = [ ( fixed-part [ ";" variant-part ] | variant-part ) [ ";" ] ] .
+
+fixed-part = record-section { ";" record-section } .
+
+record-section = identifier-list ":" type-denoter .
+
+field-identifier = identifier .
+
+variant-part = "case" variant-selector "of" variant { ";" variant } .
+
+variant-selector = [ tag-field ":" ] tag-type .
+
+tag-field = identifier .
+
+variant = case-constant-list ":" "(" field-list ")" .
+
+tag-type = ordinal-type-identifier .
+
+case-constant-list = case-constant { "," case-constant } .
+
+case-constant = constant .
+
+set-type = "set" "of" base-type .
+
+base-type = ordinal-type .
+
+file-type = "file" "of" component-type .
+
+pointer-type = new-pointer-type | pointer-type-identifier .
+
+new-pointer-type = "^" domain-type .
+
+domain-type = type-identifier .
+
+(*
+ *  Section 6.5 : Declarations and denotations of variables
+ *)
+
+variable-declaration = identifier-list ":" type-denoter .
+
+variable-access = entire-variable | component-variable | identified-variable | buffer-variable .
+
+entire-variable = variable-identifier .
+
+variable-identifier = identifier .
+
+component-variable = indexed-variable | field-designator .
+
+indexed-variable = array-variable "[" index-expression, { "," index-expression } "]" .
+
+array-variable = variable-access .
+
+index-expression = expression .
+
+field-designator = record-variable "." field-specifier | field-designator-identifier .
+
+record-variable = variable-access .
+
+field-specifier = field-identifier .
+
+identified-variable = pointer-variable "^" .
+
+pointer-variable = variable-access .
+
+buffer-variable = file-variable "^" .
+
+file-variable = variable-access .
+
+procedure-declaration = procedure-heading ";" directive
+                      | procedure-identification ";" procedure-block
+                      | procedure-heading ";" procedure-block .
+
+procedure-heading = "procedure" identifier [ formal-parameter-list ] .
+
+procedure-identification = "procedure" procedure-identifier .
+
+procedure-identifier = identifier .
+
+procedure-block = block .
+
+function-declaration = function-heading ";" directive
+                     | function-identification ";" function-block
+                     | function-heading ";" function-block .
+
+function-heading = "function" identifier [ formal-parameter-list ] ":" result-type .
+
+function-identification = "function" function-identifier .
+
+function-identifier = identifier .
+
+result-type = simple-type-identifier | pointer-type-identifier .
+
+function-block = block .
+
+(*
+ *  Section 6.6 : Parameters
+ *)
+
+formal-parameter-list = "(" formal-parameter-section { ";" formal-parameter-section } ")" .
+
+formal-parameter-section > value-parameter-specification
+                         | variable-parameter-specification
+                         | procedural-parameter-specification
+                         | functional-parameter-specification .
+
+value-parameter-specification = identifier-list ":" type-identifier .
+
+variable-parameter-specification = "var" identifier-list ":" type-identifier .
+
+procedural-parameter-specification = procedure-heading .
+
+functional-parameter-specification = function-heading .
+
+formal-parameter-section > conformant-array-parameter-specification .
+
+conformant-array-parameter-specification = value-conformant-array-specification
+                                         | variable-conformant-array-specification .
+
+value-conformant-array-specification = identifier-list ":" conformant-array-schema .
+
+variable-conformant-array-specification = "var" identifier-list ":" conformant-array-schema .
+
+conformant-array-schema = packed-conformant-array-schema
+                        | unpacked-conformant-array-schema .
+
+packed-conformant-array-schema = "packed" "array" "[" index-type-specification "]"
+                                 "of" type-identifier .
+
+unpacked-conformant-array-schema = "array" "[" index-type-specification { ";" index-type-specification } "]"
+                                   "of" ( type-identifier | conformant-array-schema ) .
+
+index-type-specification = identifier ".." identifier ":" ordinal-type-identifier .
+
+factor > bound-identifier .
+
+bound-identifier = identifier .
+
+(*
+ *  Section 6.7 : Expressions
+ *)
+
+expression = simple-expression [ relational-operator simple-expression ] .
+
+simple-expression = [ sign ] term { adding-operator term } .
+
+term = factor { multiplying-operator factor } .
+
+factor > variable-access | unsigned-constant | function-designator
+       | set-constructor | "(" expression ")" | "not" factor .
+
+unsigned-constant = unsigned-number | character-string | constant-identifier | "nil" .
+
+set-constructor = "[" [ member-designator { "," member-designator } ] "]" .
+
+member-designator = expression [ ".." expression ] .
+
+multiplying-operator = "*" | "/" | "div" | "mod" | "and" .
+
+adding-operator = "+" | "-" | "or" .
+
+relational-operator = "=" | "<>" | "<" | ">" | "<=" | ">=" | "in" .
+
+boolean-expression = expression .
+
+function-designator = function-identifier [ actual-parameter-list ] .
+
+actual-parameter-list = "(" actual-parameter { "," actual-parameter } ")" .
+
+actual-parameter = expression | variable-access | procedure-identifier | function-identifier .
+
+(*
+ *  Section 6.8 : Statements
+ *)
+
+statement = [ label ":" ] ( simple-statement j structured-statement ) .
+
+simple-statement = empty-statement | assignment-statement | procedure-statement | goto-statement .
+
+empty-statement = .
+
+assignment-statement = ( variable-access | function-identifier ) ":=" expression .
+
+procedure-statement = procedure-identifier ( [ actual-parameter-list ]
+                                             | read-parameter-list
+                                             | readln-parameter-list
+                                             | write-parameter-list
+                                             | writeln-parameter-list ) .
+
+goto-statement = "goto" label .
+
+structured-statement = compound-statement | conditional-statement | repetitive-statement | with-statement .
+
+statement-sequence = statement { ";" statement } .
+
+compound-statement = "begin" statement-sequence "end" .
+
+conditional-statement = if-statement | case-statement .
+
+if-statement = "if" boolean-expression "then" statement [ else-part ] .
+
+else-part = "else" statement .
+
+case-statement = "case" case-index "of" case-list-element
+                { ";" case-list-element } [ ";" ] "end" .
+
+case-list-element = case-constant-list ":" statement .
+
+case-index = expression .
+
+repetitive-statement = repeat-statement | while-statement | for-statement .
+
+repeat-statement = "repeat" statement-sequence "until" boolean-expression .
+
+while-statement = "while" Boolean-expression "do" statement .
+
+for-statement = "for" control-variable ":=" initial-value ( "to" | "downto" ) final-value
+                "do" statement .
+
+control-variable = entire-variable .
+
+initial-value = expression .
+
+final-value = expression .
+
+with-statement = "with" record-variable-list "do" statement .
+
+record-variable-list = record-variable { "," record-variable } .
+
+field-designator-identifier = identifier .
+
+(*
+ *  Section 6.9 : Input and output
+ *)
+
+read-parameter-list = "(" [ file-variable "," ] variable-access { "," variable-access } ")" .
+
+readln-parameter-list = [ "(" ( file-variable | variable-access ) { "," variable-access } ")" ] .
+
+write-parameter-list = "(" [ file-variable "," ] write-parameter { "," write-parameter } ")" .
+
+write-parameter = expression [ ":" expression [ ":" expression ] ] .
+
+writeln-parameter-list = [ "(" ( file-variable | write-parameter ) { "," write-parameter } ")" ] .
+
+(*
+ *  Section 6.10 : Programs
+ *)
+
+program = program-heading ";" program-block "." .
+
+program-heading = "program" identifier [ "(" program-parameter-list ")" ] .
+
+program-parameter-list = identifier-list .
+
+program-block = block .
