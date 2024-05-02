@@ -21,11 +21,12 @@ If the original source is protected by copyright, I'll add the copyright notice 
 ## Next in queue (in no particular order)
 
 - Pascal (1970)
-- Pascal ISO 10206
 - Pascal W&J
+- Pascal MT
 - Lisa Pascal
 - Modula
 
 ## History
 
 - 2024-04-02: Added Pascal ISO 7185
+- 2024-05-02: Added Extended Pascal ISO 10206
