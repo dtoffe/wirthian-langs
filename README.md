@@ -1,6 +1,6 @@
 # wirthian-langs
 
-This project intends to collect the EBNF grammars of all the programming languages designed by Professor Niklaus Wirth, including further versions and implementation variants, as well as other somehow close or (highly subjectively) related languages.
+This project intends to collect the (E)BNF grammars of all the programming languages designed by Professor Niklaus Wirth, including further versions and implementation variants, as well as other somehow close or (highly subjectively) related languages.
 
 ## License
 
@@ -20,7 +20,6 @@ If the original source is protected by copyright, I'll add the copyright notice 
 
 ## Next in queue (in no particular order)
 
-- Pascal (1970)
 - Pascal W&J
 - Pascal MT
 - Lisa Pascal
@@ -28,5 +27,6 @@ If the original source is protected by copyright, I'll add the copyright notice 
 
 ## History
 
-- 2024-04-02: Added Pascal ISO 7185
+- 2024-05-07: Added Pascal (original, 1970)
 - 2024-05-02: Added Extended Pascal ISO 10206
+- 2024-04-02: Added Pascal ISO 7185
