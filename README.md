@@ -13,7 +13,7 @@ If the original source is protected by copyright, I'll add the copyright notice 
 ## Categories
 
 - [Pascal](pascal/README.md)
-- Modula
+- [Modula](modula/README.md)
 - Oberon
 - Other
 - Related
@@ -23,10 +23,10 @@ If the original source is protected by copyright, I'll add the copyright notice 
 - Pascal W&J
 - Pascal MT
 - Lisa Pascal
-- Modula
 
 ## History
 
+- 2024-05-11: Added Modula (original, 1976)
 - 2024-05-07: Added Pascal (original, 1970)
 - 2024-05-02: Added Extended Pascal ISO 10206
 - 2024-04-02: Added Pascal ISO 7185

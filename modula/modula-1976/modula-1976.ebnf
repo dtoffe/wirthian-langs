@@ -1,0 +1,263 @@
+(* 
+ * Modula (original, 1976) EBNF grammar
+ *
+ * Transcribed from: MODULA: A language for modular multiprogramming
+ * Author: Niklaus Wirth
+ * Year of Publication / Release: 1976
+ * ETH Zürich Library
+ * Rights / license: In Copyright - Non-Commercial Use Permitted
+ * Permanent link: https://doi.org/10.3929/ethz-a-000199440
+ *
+ *)
+
+(*
+ *  Section 4 : Language Vocabulary and Representation
+ *)
+
+ident = letter { letter | digit } .
+
+number = integer .
+
+integer = digit { digit } | octaldigit { octaldigit } "B" .
+
+string = "'" { character } "'" | octaldigit { octaldigit } "C" .
+
+reserved = "+" | "-" | "*" | "/" | "=" | "<>" | "<" | "<=" | ">" | ">=" | ":=" | "(" | ")" |
+           "[" | "]" | "." | "," | ";" | ":" | "'" | "(*" | "*)" | "div" | "mod" | "or" |
+           "and" | "not" | "if" | "then" | "elsif" | "else" | "case" | "of" | "repeat" |
+           "until" | "while" | "do" | "loop" | "when" | "exit" | "begin" | "end" | "with" |
+           "value" | "xor" | "const" | "var" | "type" | "array" | "record" | "procedure" |
+           "process" | "module" | "interface" | "device" | "use" | "define" .
+
+(*
+ *  Section 5 : Facilities for sequential programming
+ *)
+
+(*
+ *  Section 5.1 : Constant declarations
+ *)
+
+constantdeclaration = ident "=" constant .
+
+constant = unsignedconstant | ( "+" | "-" ) number .
+
+unsignedconstant = ident | number | string | bitconstant .
+
+bitconstant = "[" [ bitlist ] "]" .
+
+bitlist = bitlistelement { "," bitlistelement } .
+
+bitlistelement = constant [ ":" constant ] .
+
+(*
+ *  Section 5.2 : Type declarations
+ *)
+
+typedeclaration = ident "=" type .
+
+type = ident | enumeration | arraystructure | recordstructure .
+
+enumeration = "(" identlist ")" .
+
+identlist = ident { "," ident } .
+
+arraystructure = "array" indexrangelist "of" type .
+
+indexrangelist = indexrange { "," indexrange } .
+
+indexrange = constant ":" constant .
+
+recordstructure = "record" fieldlist { ";" fieldlist } "end" .
+
+fieldlist = [ identlist ":" type ] .
+
+(*
+ *  Section 5.3 : Variables
+ *)
+
+variabledeclaration = identlist ":" type .
+
+variable = ident | variable "." ident | variable "[" indices "]" .
+
+indices = expression { "," expression } .
+
+(*
+ *  Section 5.4 : Expressions
+ *)
+
+expression = simpleexpression [ relation simpleexpression ] .
+
+relation = "=" | "<>" | "<=" | "<" | ">" | ">=" .
+
+simpleexpression = [ "+" | "-" ] term { addoperator term } .
+
+addoperator = "+" | "-" | "or" | "xor" .
+
+term = factor { muloperator factor } .
+
+muloperator = "*" | "/" | "div" | "mod" | "and" .
+
+factor = unsignedconstant | variable | functioncall | "(" expression ")" | "not" factor .
+
+functioncall = ident parameterlist .
+
+(*
+ *  Section 5.5 : Statements
+ *)
+
+statement = assignment | procedurecall | processstatement | ifstatement | casestatement |
+            whilestatement | repeatstatement | loopstatement | withstatement .
+
+(*
+ *  Section 5.6 : Assignments
+ *)
+
+assignment = variable ":=" expression .
+
+(*
+ *  Section 5.7 : Procedure calls
+ *)
+
+procedurecall = identification [ parameterlist ] .
+
+parameterlist = "(" parameter { "," parameter } ")" .
+
+parameter = expression | variable .
+
+(*
+ *  Section 5.8 : Statement sequences
+ *)
+
+statementsequence = statement { ";" statement } .
+
+(*
+ *  Section 5.9 : If statements
+ *)
+
+ifstatement = "if" expression "then" statementsequence
+              { "elsif" expression "then" statementsequence }
+              [ "else" statementsequence ] "end" .
+
+(*
+ *  Section 5.10 : Case statements
+ *)
+
+casestatement = "case" expression "of" case { ";" case } "end" .
+
+case = [ caselabels ":" "begin" statementsequence "end" ] .
+
+caselabels = constant { "," constant } .
+
+(*
+ *  Section 5.11 : While statements
+ *)
+
+whilestatement = "while" expression "do" statementsequence "end" .
+
+(*
+ *  Section 5.12 : Repeat statements
+ *)
+
+repeatstatement = "repeat" statementsequence "until" expression .
+
+(*
+ *  Section 5.13 : Loop statements
+ *)
+
+loopstatement = "loop" statementsequence 
+                { "when" expression [ "do" statementsequence ] "exit"
+                statementsequence } "end" .
+
+(*
+ *  Section 5.14 : With statements
+ *)
+
+withstatement = "with" variable "do" statementsequence "end" .
+
+(*
+ *  Section 5.15 : Procedures
+ *)
+
+proceduredeclaration = "procedure" ident [ "(" formalparameters ")" ] [ ":" ident ] ";" 
+                       [ uselist ] block ident .
+
+formalparameters = section { ";" section } .
+
+section = [ "const" | "var" ] ident { "," ident } ":" formaltype .
+
+formaltype = [ "array" indextypes "of" ] ident .
+
+indextypes = identlist .
+
+uselist = "use" [ ident { "," ident } ] ";" .
+
+block = { declarationpart } [ initializationpart ] [ statementpart ] "end" .
+
+declarationpart = "const" { constantdeclaration ";" } |
+                  "type" { typedeclaration ";" } |
+                  "var" { variabledeclaration ";" } |
+                  module ";" |
+                  proceduredeclaration ";" |
+                  processdeclaration ";" .
+
+initializationpart = "value" { ident "=" initialvalue } .
+
+initialvalue = constant | "[" repetition "]" initialvalue |
+               "(" initialvalue { "," initialvalue } ")" .
+
+repetition = integer | ident .
+
+statementpart = "begin" statementsequence .
+
+(*
+ *  Section 5.16 : Modules
+ *)
+
+module = moduleheading [ definelist ] [ uselist ] block ident .
+
+moduleheading = [ "interface" ] "module" ident ";" |
+                "device" "module" ident priority ";" .
+
+definelist = "define" ident { "," ident } ";" .
+
+(*
+ *  Section 5.17 : Programs
+ *)
+
+program = module "." .
+
+(*
+ *  Section 6 : Facilities for multiprogramming
+ *)
+
+(*
+ *  Section 6.1 : Processes
+ *)
+
+processdeclaration = "process" ident [ "(" formalparameters ")" ] [ intvector ] ";" uselist block ident .
+
+(*
+ *  Section 6.2 : Process control statements
+ *)
+
+processstatement = ident [ parameterlist ] .
+
+(*
+ *  Section 7 : PDP-11 specific facilities
+ *)
+
+(*
+ *  Section 7.1 : Device modules and processes
+ *)
+
+priority = "[" integer "]" .
+
+intvector = "[" integer "]" .
+
+(*
+ *  Section 7.2 : Device register declarations
+ *)
+
+variabledeclaration = ident [ address ] { "," ident [ address ] } ":" type .
+
+address = "[" integer "]" .
