@@ -26,6 +26,7 @@ If the original source is protected by copyright, I'll add the copyright notice 
 
 ## History
 
+- 2024-06-15: Added Borland Turbo Modula 2 (about 1986)
 - 2024-05-11: Added Modula (original, 1976)
 - 2024-05-07: Added Pascal (original, 1970)
 - 2024-05-02: Added Extended Pascal ISO 10206
