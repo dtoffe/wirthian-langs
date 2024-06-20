@@ -1,0 +1,150 @@
+(* 
+ * Joyce (Per Brinch Hansen, 1987) EBNF grammar
+ *
+ *)
+
+(*
+ *  Grammar
+ *)
+
+Program = [ ConstantDefinitionPart ] [ TypeDefinitionPart ] AgentProcedure .
+
+AgentProcedure = "agent" AgentName ProcedureBlock ";" .
+
+ProcedureBlock = FormalParameterPart ";" ProcedureBody .
+
+FormalParameterPart = [ "(" FormalParameterList ")" ] .
+
+FormalParameterList = ParameterDefinition { ";" ParameterDefinition } .
+
+ParameterDefinition = VariableGroup .
+
+ProcedureBody = [ ConstantDefinitionPart ] [ TypeDefinitionPart ]
+                { AgentProcedure } [ VariableDefinitionPart ] CompoundStatement .
+
+ConstantDefinitionPart = "const" ConstantDefinition { ConstantDefinition } .
+
+ConstantDefinition = ConstantName "=" Constant ";" .
+
+TypeDefinitionPart = "type" TypeDefinition { TypeDefinition } .
+
+TypeDefinition = TypeName "=" NewType ";" .
+
+NewType = EnumeratedType | ArrayType | RecordType | PortType .
+
+EnumeratedType = "(" ConstantName { "," ConstantName } ")" .
+
+ArrayType = "array" "[" IndexRange "]" "of" TypeName .
+
+IndexRange = SimpleConstant ".." SimpleConstant .
+
+RecordType = "record" FieldList "end" .
+
+FieldList = RecordSection { ";" RecordSection } .
+
+RecordSection = FieldName { "," FieldName } ":" TypeName .
+
+PortType = "[" Alphabet "]" .
+
+Alphabet = SymbolClass { "," SymbolClass } .
+
+SymbolClass = SymbolName [ "(" TypeName ")" ] .
+
+VariableDefinitionPart = "var" VariableDefinition { VariableDefinition } .
+
+VariableDefinition = VariableGroup ";" .
+
+VariableGroup = VariableName { "," VariableName } ":" TypeName .
+
+Statement = Empty | AssignmentStatement | AgentStatement | PortStatement | InputOutputStatement |
+            IfStatement | WhileStatement | PollingStatement | CompoundStatement .
+
+AssignmentStatement = VariableAccess ":=" Expression .
+
+AgentStatement = AgentName [ "(" ActualParameterList ")" ] .
+
+ActualParameterList = Expression { "," Expression } .
+
+PortStatement = "+" PortAccess .
+
+PortAccess = VariableAccess .
+
+InputOutputStatement = InputOutputCommand .
+
+InputOutputCommand = OutputCommand | InputCommand .
+
+OutputCommand = PortAccess "!" OutputSymbol .
+
+OutputSymbol = SymbolName [ "(" Expression ")" ] .
+
+InputCommand = PortAccess "?" InputSymbol .
+
+InputSymbol = SymbolName [ "(" VariableAccess ")" ] .
+
+lfStatement = "if" Expression "then" Statement [ "else" Statement ] .
+
+WhileStatement = "while" Expression "do" Statement .
+
+PollingStatement = "poll" GuardedStatementList "end" .
+
+GuardedStatementList = GuardedStatement { "|" GuardedStatement } .
+
+GuardedStatement = Guard "->" StatementList .
+
+Guard = InputOutputCommand [ "&" Expression ] .
+
+CompoundStatement = "begin" StatementList "end" .
+
+StatementList = Statement { ";" Statement } .
+
+Expression = SimpleExpression [ RelationalOperator SimpleExpression ] .
+
+RelationalOperator = "<" | "=" | ">" | "<=" | "<>" | ">=" .
+
+SimpleExpression = [ SignOperator ] Term { AddingOperator Term } .
+
+SignOperator = "+" | "—" .
+
+AddingOperator = "+" | "-" | "or" .
+
+Term = Factor { MultiplyingOperator Factor } .
+
+MultiplyingOperator = "*" | "/" | "div" | "mod" | "and" .
+
+Factor = Constant | VariableAccess | Constructor | "(" Expression ")" | "not" Factor .
+
+Constructor = TypeName "(" ConstructorOperand ")" .
+
+ConstructorOperand = Expression | StringToken .
+
+StringToken = """ { GraphicCharacter } """ .
+
+VariableAccess = VariableName { Selector } .
+
+Selector = IndexedSelector | FieldSelector .
+
+IndexedSelector = "[" Expression "]" .
+
+FieldSelector = "." FieldName .
+
+Constant = SimpleConstant | RealConstant | StructuredConstant .
+
+SimpleConstant = SimpleNumeral | GraphicToken | ControlToken | ConstantName .
+
+SimpleNumeral = Digit { Digit } .
+
+GraphicToken = "'" GraphicCharacter "'" .
+
+ControlToken = SimpleNumeral "C" .
+
+RealConstant = RealNumeral | ConstantName .
+
+RealNumeral = Mantissa [ "E" Exponent ] .
+
+Mantissa = Digit { Digit } "." { Digit } .
+
+Exponent = [ "+" | "—" ] SimpleNumeral .
+
+StructuredConstant = "nil" TypeName | ConstantName .
+
+Name = Letter { Letter | Digit } .

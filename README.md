@@ -16,17 +16,20 @@ If the original source is protected by copyright, I'll add the copyright notice 
 - [Modula](modula/README.md)
 - Oberon
 - Other
-- Related
+- [Related](related/README.md)
 
 ## Next in queue (in no particular order)
 
 - Pascal W&J
 - Pascal MT
 - Lisa Pascal
+- Concurrent Pascal (PBH, 1975)
+- SuperPascal (PBH, 1994)
 
 ## History
 
-- 2024-06-15: Added Borland Turbo Modula 2 (about 1986)
+- 2024-06-20: Added Joyce (PBH, 1987)
+- 2024-06-15: Added Borland Turbo Modula 2 (1987)
 - 2024-05-11: Added Modula (original, 1976)
 - 2024-05-07: Added Pascal (original, 1970)
 - 2024-05-02: Added Extended Pascal ISO 10206
